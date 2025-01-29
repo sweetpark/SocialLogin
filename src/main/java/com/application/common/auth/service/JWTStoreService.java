@@ -1,0 +1,58 @@
+package com.application.common.auth.service;
+
+import com.application.common.auth.dto.oauth2Dto.JWTStoreDto;
+import com.application.common.auth.jwt.JWTRefreshStore;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+public class JWTStoreService {
+    private final JWTRefreshStore jwtRefreshStore;
+
+    public JWTStoreService(JWTRefreshStore store){
+        this.jwtRefreshStore = store;
+    }
+
+
+    public void save(String uuid, String refreshToken){
+        jwtRefreshStore.save(uuid, refreshToken);
+    }
+
+    public JWTStoreDto findByKey(String uuid){
+        return jwtRefreshStore.findByUUID(uuid);
+    }
+
+    public List<String> findAllByKey(){
+        return jwtRefreshStore.findByAll();
+    }
+
+    public void deleteByKey(String uuid){
+        jwtRefreshStore.deleteByUUID(uuid);
+    }
+
+    @Scheduled(fixedRate =  1*24*60*60L) // 2주관리
+    public void isAccessExpired(){
+        LocalDateTime compareToTime = null;
+        LocalDateTime compareFromTime = LocalDateTime.now();
+
+        List<String> keys = findAllByKey();
+        for (String key : keys) {
+            JWTStoreDto value = findByKey(key);
+
+             if(value == null || value.getCreateTime() == null){
+                 continue;
+             }
+
+             compareToTime = value.getCreateTime();
+
+             if(Duration.between(compareToTime, compareFromTime).toMinutes() > 14* 24* 60){
+                 deleteByKey(key);
+             }
+        }
+    }
+
+}

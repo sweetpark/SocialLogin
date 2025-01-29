@@ -1,0 +1,3 @@
+<typeHandlers>
+    <typeHandler javaType="com.application.domain.enums.Sex" handler="com.application.domain.enums.SexTypeHandler"/>
+</typeHandlers>

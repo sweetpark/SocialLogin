@@ -6,3 +6,6 @@ gradle/*
 gradle
 HELP.md
 .DS_Store
+
+gradlew
+gradlew.bat

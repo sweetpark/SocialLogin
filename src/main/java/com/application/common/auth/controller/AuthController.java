@@ -44,8 +44,8 @@ public class AuthController {
         //삭제
         jwtStoreService.deleteByKey(key);
 
-        String newAccessToken = jwtUtil.createAccessJwt(jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken), 15*60*60L );
-        String newRefreshToken = jwtUtil.createAccessJwt(jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken), 60*60*60L );
+        String newAccessToken = jwtUtil.createAccessJwt(jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken) );
+        String newRefreshToken = jwtUtil.createRefreshJwt(jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken) );
         //갱신
         jwtStoreService.save(key, newRefreshToken);
 

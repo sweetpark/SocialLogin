@@ -35,8 +35,8 @@ public class CustomSuccessHandler  implements AuthenticationSuccessHandler {
         String credentialId = customUserDetails.getCredentialId();
         String role = getRoleByAuthentication(authentication);
 
-        String accessToken = jwtUtil.createAccessJwt(credentialId, role, 60* 60L);
-        String refreshToken = jwtUtil.createRefreshJwt(credentialId, role, 14*24*60*60L);
+        String accessToken = jwtUtil.createAccessJwt(credentialId, role);
+        String refreshToken = jwtUtil.createRefreshJwt(credentialId, role);
 
 
         jwtStoreService.save(jwtUtil.getUUID(refreshToken), refreshToken);

@@ -56,7 +56,7 @@ public class JWTUtil {
         }
     }
 
-    public String createAccessJwt(String credentialId, String role, Long expiredMs){
+    public String createAccessJwt(String credentialId, String role){
         String uuid = UUID.randomUUID().toString();
 
         return Jwts.builder()
@@ -64,13 +64,13 @@ public class JWTUtil {
                 .claim("credentialId", credentialId)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis()+ expiredMs))
+                .expiration(new Date(System.currentTimeMillis()+ 60 * 60 * 1000L))
                 .signWith(secretKey)
                 .compact();
 
     }
 
-    public String createRefreshJwt(String credentialId, String role, Long expiredMs){
+    public String createRefreshJwt(String credentialId, String role){
         String uuid = UUID.randomUUID().toString();
 
         return Jwts.builder()
@@ -78,7 +78,7 @@ public class JWTUtil {
                 .claim("credentialId", credentialId)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis()+ expiredMs))
+                .expiration(new Date(System.currentTimeMillis()+ 14 * 24 * 60 * 60 * 1000L))
                 .signWith(secretKey)
                 .compact();
 

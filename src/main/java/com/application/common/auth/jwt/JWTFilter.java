@@ -20,11 +20,11 @@ import java.util.List;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
-    private final JWTStoreService jwtStoreService;
 
-    public JWTFilter(JWTUtil jwtUtil, JWTStoreService jwtStoreService){
+
+    public JWTFilter(JWTUtil jwtUtil){
         this.jwtUtil = jwtUtil;
-        this.jwtStoreService = jwtStoreService;
+
     }
 
 
@@ -32,6 +32,7 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String accessToken = getAccessToken(request);
+
 
         if(accessToken == null){
             log.info("accessToken null");
@@ -71,9 +72,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
     }
 
-    private String getRefreshToken(HttpServletRequest request){
-        return request.getHeader("Refresh-Token");
-    }
 
     private void setSecurityContext(JWTUtil jwtUtil, String accessToken) {
         String credentialId = jwtUtil.getCredentialId(accessToken);

@@ -2,6 +2,8 @@ package com.application.domain.enums;
 
 import lombok.Getter;
 
+import java.util.Optional;
+
 @Getter
 public enum Role {
     ADMIN("ROLE_ADMIN"),
@@ -16,11 +18,11 @@ public enum Role {
     }
 
 
-    public Role fromROLE(String role){
+    public static Optional<Role> fromROLE(String role){
         for (Role value : Role.values()) {
             if(value.getEnglish().equalsIgnoreCase(role))
-                return value;
+                return Optional.of(value);
         }
-        throw new IllegalArgumentException("No Type Role");
+        return Optional.empty();
     }
 }

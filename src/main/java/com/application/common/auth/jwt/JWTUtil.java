@@ -56,9 +56,7 @@ public class JWTUtil {
         }
     }
 
-    public String createAccessJwt(String credentialId, String role){
-        String uuid = UUID.randomUUID().toString();
-
+    public String createAccessJwt(String uuid, String credentialId, String role){
         return Jwts.builder()
                 .claim("uuid", uuid)
                 .claim("credentialId", credentialId)
@@ -70,8 +68,7 @@ public class JWTUtil {
 
     }
 
-    public String createRefreshJwt(String credentialId, String role){
-        String uuid = UUID.randomUUID().toString();
+    public String createRefreshJwt(String uuid, String credentialId, String role){
 
         return Jwts.builder()
                 .claim("uuid", uuid)

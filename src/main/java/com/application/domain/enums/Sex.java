@@ -1,6 +1,9 @@
 package com.application.domain.enums;
 
 import lombok.Getter;
+import lombok.Setter;
+
+import java.util.Optional;
 
 @Getter
 public enum Sex {
@@ -15,12 +18,12 @@ public enum Sex {
 
 
 
-    public Sex fromSEX(String sex){
+    public static Optional<Sex> fromString(String sex){
         for (Sex value : Sex.values()) {
             if(value.getEnglish().equalsIgnoreCase(sex))
-                return value;
+                return Optional.of(value);
         }
-
-        throw new IllegalArgumentException("No Type Sex");
+        return Optional.empty();
     }
+
 }

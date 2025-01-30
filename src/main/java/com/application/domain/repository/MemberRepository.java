@@ -12,4 +12,5 @@ public interface MemberRepository {
     public List<Member> findAll();
     public void deleteById(Long id);
     public void clear();
+    public void update(Member member);
 }

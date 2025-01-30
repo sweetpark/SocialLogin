@@ -2,6 +2,8 @@ package com.application.domain.enums;
 
 import lombok.Getter;
 
+import java.util.Optional;
+
 @Getter
 public enum Blood {
     A("A"),
@@ -15,12 +17,12 @@ public enum Blood {
         this.blood = blood;
     }
 
-    public static Blood fromBlood(String blood){
+    public static Optional<Blood> fromBlood(String blood){
         for (Blood value : Blood.values()) {
             if (value.getBlood().equalsIgnoreCase(blood)){
-                return value;
+                return Optional.of(value);
             }
         }
-        throw new IllegalArgumentException("Unknown blood type" + blood);
+        return Optional.empty();
     }
 }

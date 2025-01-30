@@ -1,18 +1,19 @@
 package com.application.common.auth.config;
 
-import com.application.common.auth.service.CustomFailureHandler;
-import com.application.common.auth.service.CustomSuccessHandler;
+import com.application.common.auth.service.*;
 import com.application.common.auth.jwt.JWTFilter;
 import com.application.common.auth.jwt.JWTUtil;
-import com.application.common.auth.service.CustomOAuth2UserService;
-import com.application.common.auth.service.JWTStoreService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 
 @Configuration
@@ -22,18 +23,18 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
     private final CustomFailureHandler customFailureHandler;
-    private final JWTStoreService jwtStoreService;
+    private final CustomLogoutHandler customLogoutHandler;
     private final JWTUtil jwtUtil;
 
     public SecurityConfig(CustomOAuth2UserService customOAuth2UserService,
                           CustomSuccessHandler customSuccessHandler,
                           CustomFailureHandler customFailureHandler,
-                          JWTStoreService jwtStoreService,
+                          CustomLogoutHandler customLogoutHandler,
                           JWTUtil jwtUtil){
         this.customOAuth2UserService = customOAuth2UserService;
         this.customSuccessHandler = customSuccessHandler;
         this.customFailureHandler = customFailureHandler;
-        this.jwtStoreService = jwtStoreService;
+        this.customLogoutHandler = customLogoutHandler;
         this.jwtUtil = jwtUtil;
     }
 
@@ -50,7 +51,7 @@ public class SecurityConfig {
                 .httpBasic((auth) -> auth.disable());
 
         http
-                .addFilterBefore(new JWTFilter(jwtUtil, jwtStoreService), OAuth2AuthorizationRequestRedirectFilter.class);
+                .addFilterBefore(new JWTFilter(jwtUtil), OAuth2AuthorizationRequestRedirectFilter.class);
 
         http
                 .oauth2Login((oauth2) -> oauth2
@@ -67,6 +68,18 @@ public class SecurityConfig {
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
+        http
+                .logout((auth) -> auth
+                        .logoutUrl("/logout")
+                        .addLogoutHandler(customLogoutHandler)
+                        .logoutSuccessHandler(((request, response, authentication) ->{
+                            response.setHeader("Authorization", "");
+                            response.setHeader("Refresh-Token","");
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            response.getWriter().write("Success logout");
+                            response.flushBuffer();}
+                        )));
 
         return http.build();
     }

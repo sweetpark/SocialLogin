@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 @Slf4j
 @Controller
@@ -37,15 +38,17 @@ public class AuthController {
 
         String key = jwtUtil.getUUID(refreshToken);
 
-        if(jwtUtil.isRefreshExpired(refreshToken)){
+
+        if(jwtUtil.isRefreshExpired(refreshToken) || !jwtStoreService.containKey(key)){
             return new ResponseEntity<>(new ResponseDto<>(-1, "refresh token expired", ""), HttpStatus.OK);
         }
 
         //삭제
         jwtStoreService.deleteByKey(key);
 
-        String newAccessToken = jwtUtil.createAccessJwt(jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken) );
-        String newRefreshToken = jwtUtil.createRefreshJwt(jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken) );
+        String uuid = UUID.randomUUID().toString();
+        String newAccessToken = jwtUtil.createAccessJwt(uuid, jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken) );
+        String newRefreshToken = jwtUtil.createRefreshJwt(uuid, jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken) );
         //갱신
         jwtStoreService.save(key, newRefreshToken);
 

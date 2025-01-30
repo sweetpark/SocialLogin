@@ -2,6 +2,8 @@ package com.application.domain.enums;
 
 import lombok.Getter;
 
+import java.util.Optional;
+
 @Getter
 public enum Mbti {
     INTP("intp"),
@@ -27,11 +29,11 @@ public enum Mbti {
         this.mbti = mbti;
     }
 
-    public Mbti fromMBTI(String mbti){
+    public static Optional<Mbti> fromMBTI(String mbti){
         for (Mbti value : Mbti.values()) {
             if(value.getMbti().equalsIgnoreCase(mbti))
-                return value;
+                return Optional.of(value);
         }
-        throw new IllegalArgumentException("No Type MBTI");
+        return Optional.empty();
     }
 }

@@ -2,6 +2,8 @@ package com.application.domain.enums;
 
 import lombok.Getter;
 
+import java.util.Optional;
+
 @Getter
 public enum School {
     ELEMENTARYSCHOOL("elementSchool"),
@@ -17,12 +19,12 @@ public enum School {
     }
 
 
-    public School fromSCHOOL(String school){
+    public static Optional<School> fromSCHOOL(String school){
         for (School value : School.values()) {
             if(value.getSchool().equalsIgnoreCase(school))
-                return value;
+                return Optional.of(value);
         }
-        throw new IllegalArgumentException("No Type School");
+        return Optional.empty();
     }
 
 

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class MemMemberRepository implements MemberRepository{
@@ -57,5 +58,9 @@ public class MemMemberRepository implements MemberRepository{
     @Override
     public void clear() {
         store.clear();
+    }
+
+    public void update(Member member){
+        //update 쿼리
     }
 }

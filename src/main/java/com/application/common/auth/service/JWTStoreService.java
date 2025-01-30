@@ -8,10 +8,13 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class JWTStoreService {
     private final JWTRefreshStore jwtRefreshStore;
+
 
     public JWTStoreService(JWTRefreshStore store){
         this.jwtRefreshStore = store;
@@ -32,6 +35,14 @@ public class JWTStoreService {
 
     public void deleteByKey(String uuid){
         jwtRefreshStore.deleteByUUID(uuid);
+    }
+
+    public Boolean containKey(String uuid){
+        if ( findByKey(uuid) == null ){
+            return false;
+        }else{
+            return true;
+        }
     }
 
     @Scheduled(fixedRate =  1*24*60*60L) // 2주관리

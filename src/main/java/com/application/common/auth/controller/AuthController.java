@@ -51,7 +51,7 @@ public class AuthController {
         String newAccessToken = jwtUtil.createAccessJwt(uuid, jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken) );
         String newRefreshToken = jwtUtil.createRefreshJwt(uuid, jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken) );
         //갱신
-        jwtStoreService.save(key, newRefreshToken);
+        jwtStoreService.save(uuid, newRefreshToken);
 
 
         return new ResponseEntity<>(new ResponseDto<>(1, "access token and refersh token reissue.", new ResponseRefreshDto(newAccessToken, newRefreshToken)), HttpStatus.OK);

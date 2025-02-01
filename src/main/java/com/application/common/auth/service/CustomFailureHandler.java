@@ -20,7 +20,6 @@ public class CustomFailureHandler implements AuthenticationFailureHandler {
     }
 
     private void queryRedirect(HttpServletResponse response) throws IOException{
-        String query = String.format(Constant.FRONT_CALLBACK_URI+"%s", "");
-        response.sendRedirect(query);
+        response.sendRedirect(Constant.FRONT_LOGIN_FAIL_REDIRECT);
     }
 }

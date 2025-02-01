@@ -44,7 +44,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 // 401 error 로 redirect
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // HTTP 401 상태코드 설정
                 response.setContentType("application/json;charset=UTF-8");
-                response.getWriter().write("{\"error\": \"Access token expired\"}");
+                response.getWriter().write("{\"error\": \"Access token expired\", \"code\": 401}");
                 response.flushBuffer();
 
             }else{

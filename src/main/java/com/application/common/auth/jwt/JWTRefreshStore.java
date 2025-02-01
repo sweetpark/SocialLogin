@@ -18,8 +18,10 @@ public class JWTRefreshStore {
 
 
     public void save(String uuid, String refreshToken){
-        JWTStoreDto jwtStoreDto = new JWTStoreDto(refreshToken);
-        jwtStore.put(uuid, jwtStoreDto);
+        synchronized (jwtStore){
+            JWTStoreDto jwtStoreDto = new JWTStoreDto(refreshToken);
+            jwtStore.put(uuid, jwtStoreDto);
+        }
     }
 
     public JWTStoreDto findByUUID(String uuid){
@@ -31,7 +33,9 @@ public class JWTRefreshStore {
     }
 
     public void deleteByUUID(String uuid){
-        jwtStore.remove(uuid);
+        synchronized (jwtStore){
+            jwtStore.remove(uuid);
+        }
     }
 
     public void clear(){

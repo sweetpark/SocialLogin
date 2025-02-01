@@ -1,23 +1,19 @@
 package com.application.common.auth.controller;
 
 
-import com.application.common.auth.dto.oauth2Dto.JWTStoreDto;
-import com.application.common.auth.dto.oauth2Dto.ResponseRefreshDto;
+import com.application.common.auth.dto.oauth2Dto.ResponseTokenDto;
 import com.application.common.auth.jwt.JWTUtil;
-import com.application.common.auth.jwt.OneTimeCodeStore;
 import com.application.common.auth.service.JWTStoreService;
-import com.application.common.auth.service.OneTimeCodeService;
+import com.application.common.auth.service.OAuth2Service;
 import com.application.common.response.ResponseDto;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -29,7 +25,7 @@ public class AuthController {
 
     private final JWTStoreService jwtStoreService;
     private final JWTUtil jwtUtil;
-    private final OneTimeCodeService oneTimeCodeService;
+    private final OAuth2Service oAuth2Service;
 
 
     @PostMapping("/api/auth/refresh")
@@ -38,7 +34,7 @@ public class AuthController {
         log.info("refresh token : " + refreshToken);
 
         String key = jwtUtil.getUUID(refreshToken);
-
+        log.info("key: " + key);
 
         if(jwtUtil.isRefreshExpired(refreshToken) || !jwtStoreService.containKey(key)){
             return new ResponseEntity<>(new ResponseDto<>(-1, "refresh token expired", ""), HttpStatus.OK);
@@ -48,48 +44,42 @@ public class AuthController {
         jwtStoreService.deleteByKey(key);
 
         String uuid = UUID.randomUUID().toString();
-        String newAccessToken = jwtUtil.createAccessJwt(uuid, jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken) );
+        String newAccessToken = jwtUtil.createAccessJwt(jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken) );
         String newRefreshToken = jwtUtil.createRefreshJwt(uuid, jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken) );
+        log.info("new Refresh Key : " + newRefreshToken);
+
         //갱신
-        jwtStoreService.save(key, newRefreshToken);
+        jwtStoreService.save(uuid, newRefreshToken);
 
 
-        return new ResponseEntity<>(new ResponseDto<>(1, "access token and refersh token reissue.", new ResponseRefreshDto(newAccessToken, newRefreshToken)), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDto<>(1, "access token and refersh token reissue.", new ResponseTokenDto(newAccessToken, newRefreshToken)), HttpStatus.OK);
     }
 
-    @PostMapping("/api/exchange/token")
-    public ResponseEntity<?> exchangeToken(@RequestBody Map<String, String> request){
-        String uuid = request.get("code");
+    @PostMapping("/api/auth/social-login")
+    public ResponseEntity<?> socialLogin(@RequestBody Map<String, String> request){
+        String provider = request.get("provider");
+        String accessToken = request.get("accessToken");
+        Map<String, Object> userInfo;
 
-        OneTimeCodeStore oneTimeCodeStore = oneTimeCodeService.findByCode(uuid);
-
-        if(oneTimeCodeStore == null){
-            return new ResponseEntity<>(new ResponseDto<>(-1, "invalid code or expired code", null), HttpStatus.UNAUTHORIZED);
+        if("google".equalsIgnoreCase(provider)){
+            userInfo = oAuth2Service.getUserInfoFromGoogle(accessToken);
+        }else if("naver".equalsIgnoreCase(provider)){
+            userInfo = oAuth2Service.getUserInfoFromNaver(accessToken);
+        }else{
+            return new ResponseEntity<>(new ResponseDto<>(-1, "invalid provider", null), HttpStatus.BAD_REQUEST);
         }
 
-        ResponseRefreshDto responseRefreshDto = new ResponseRefreshDto(oneTimeCodeStore.getAccessToken(), oneTimeCodeStore.getRefreshToken());
-        oneTimeCodeService.deleteByCode(uuid);
-        return new ResponseEntity<>(new ResponseDto<>(1, "access token and refresh token", responseRefreshDto),HttpStatus.OK);
+        if(userInfo == null || userInfo.isEmpty()){
+            return new ResponseEntity<>(new ResponseDto<>(-1, "invalid access token", null), HttpStatus.UNAUTHORIZED);
+        }
+
+
+        ResponseTokenDto responseTokenDto = oAuth2Service.getToken(provider, userInfo);
+
+        return new ResponseEntity<>(new ResponseDto<>(1, "access token , refresh token create", responseTokenDto), HttpStatus.CREATED);
     }
 
 
-    @GetMapping("/api/redirect/test")
-    public ResponseEntity<String> findJwtToken(@RequestParam("code") String code){
-        RestTemplate restTemplate = new RestTemplate();
-
-        String exchangeUrl = "http://localhost:8080/api/exchange/token";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(Map.of("code", code), headers);
-
-        // POST 요청 실행
-        ResponseEntity<String> responseEntity = restTemplate.exchange(
-                exchangeUrl, HttpMethod.POST, requestEntity, String.class);
-
-        // 응답 반환
-        return responseEntity;
-    }
 
     //TEST CODE
     @GetMapping("/api/test")

@@ -1,16 +1,13 @@
 package com.application.common.auth.dto.oauth2Dto;
 
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public class CustomOAuth2User implements OAuth2User {
-
     private final UserDTO userDTO;
 
     public CustomOAuth2User(UserDTO userDTO){
@@ -45,5 +42,4 @@ public class CustomOAuth2User implements OAuth2User {
     public String getCredentialId() {
         return userDTO.getCredentialId();
     }
-
 }

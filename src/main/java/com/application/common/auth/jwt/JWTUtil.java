@@ -9,7 +9,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.UUID;
 
 @Component
 public class JWTUtil {
@@ -56,9 +55,8 @@ public class JWTUtil {
         }
     }
 
-    public String createAccessJwt(String uuid, String credentialId, String role){
+    public String createAccessJwt(String credentialId, String role){
         return Jwts.builder()
-                .claim("uuid", uuid)
                 .claim("credentialId", credentialId)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))

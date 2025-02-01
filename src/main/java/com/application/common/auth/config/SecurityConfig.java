@@ -13,6 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 
@@ -20,20 +21,12 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 @EnableWebSecurity(debug = false)
 public class SecurityConfig {
 
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomSuccessHandler customSuccessHandler;
-    private final CustomFailureHandler customFailureHandler;
+
     private final CustomLogoutHandler customLogoutHandler;
     private final JWTUtil jwtUtil;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService,
-                          CustomSuccessHandler customSuccessHandler,
-                          CustomFailureHandler customFailureHandler,
-                          CustomLogoutHandler customLogoutHandler,
+    public SecurityConfig(CustomLogoutHandler customLogoutHandler,
                           JWTUtil jwtUtil){
-        this.customOAuth2UserService = customOAuth2UserService;
-        this.customSuccessHandler = customSuccessHandler;
-        this.customFailureHandler = customFailureHandler;
         this.customLogoutHandler = customLogoutHandler;
         this.jwtUtil = jwtUtil;
     }
@@ -51,17 +44,13 @@ public class SecurityConfig {
                 .httpBasic((auth) -> auth.disable());
 
         http
-                .addFilterBefore(new JWTFilter(jwtUtil), OAuth2AuthorizationRequestRedirectFilter.class);
+                .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
-        http
-                .oauth2Login((oauth2) -> oauth2
-                        .userInfoEndpoint( (userInfo -> userInfo.userService(customOAuth2UserService)))
-                        .successHandler(customSuccessHandler)
-                        .failureHandler(customFailureHandler));
 
         http
                 .authorizeHttpRequests((auth)->auth
-                        .requestMatchers("/", "/api/auth/refresh", "/api/exchange/token", "/api/redirect/test" ).permitAll()
+                        .requestMatchers("/api/auth/refresh", "/api/auth/social-login").permitAll()
+                        .requestMatchers("/api/auth/naver/token", "/api/auth/google/token", "/api/auth/**", "login/**").permitAll()
                         .anyRequest().authenticated());
 
         http

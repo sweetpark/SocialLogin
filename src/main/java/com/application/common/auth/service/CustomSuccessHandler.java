@@ -62,6 +62,8 @@ public class CustomSuccessHandler  implements AuthenticationSuccessHandler {
         }else if(oauthResponseModeConfig.isMode().equalsIgnoreCase("cookie")){
             sendCookie(accessToken, refreshToken, response);
             response.sendRedirect(Constant.FRONT_SEND_REDIRECT);
+        }else if (oauthResponseModeConfig.isMode().equalsIgnoreCase("redirect")){
+            response.sendRedirect(redirectUri(accessToken,refreshToken));
         }else{
             sendResponse(accessToken,refreshToken,response);
         }
@@ -118,4 +120,8 @@ public class CustomSuccessHandler  implements AuthenticationSuccessHandler {
         response.addCookie(refreshTokenCookie);
     }
 
+    //redirect 사용
+    private String redirectUri (String accessToken, String refreshToken){
+        return "myapp://oauth-callback?accessToken=" + accessToken + "&refreshToken=" + refreshToken;
+    }
 }

@@ -47,23 +47,8 @@ public class JWTStoreService {
 
     @Scheduled(fixedRate =  1*24*60*60L) // 2주관리
     public void isAccessExpired(){
-        LocalDateTime compareToTime = null;
-        LocalDateTime compareFromTime = LocalDateTime.now();
-
-        List<String> keys = findAllByKey();
-        for (String key : keys) {
-            JWTStoreDto value = findByKey(key);
-
-             if(value == null || value.getCreateTime() == null){
-                 continue;
-             }
-
-             compareToTime = value.getCreateTime();
-
-             if(Duration.between(compareToTime, compareFromTime).toMinutes() > 14* 24* 60){
-                 deleteByKey(key);
-             }
-        }
+        jwtRefreshStore.getJwtStore().entrySet().removeIf(entry ->
+                Duration.between(entry.getValue().getCreateTime(), LocalDateTime.now()).toMinutes() > 14* 24* 60);
     }
 
 }

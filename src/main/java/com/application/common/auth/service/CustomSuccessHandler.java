@@ -4,6 +4,7 @@ package com.application.common.auth.service;
 import com.application.common.Constant;
 import com.application.common.OauthResponseModeConfig;
 import jakarta.servlet.http.Cookie;
+import org.apache.tomcat.util.bcel.Const;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.application.common.auth.dto.oauth2Dto.CustomOAuth2User;
 import com.application.common.auth.jwt.JWTUtil;
@@ -29,11 +30,13 @@ public class CustomSuccessHandler  implements AuthenticationSuccessHandler {
     private final JWTUtil jwtUtil;
     private final JWTStoreService jwtStoreService;
     private final OauthResponseModeConfig oauthResponseModeConfig;
+    private final OneTimeCodeService oneTimeCodeService;
 
-    public CustomSuccessHandler(JWTUtil jwtUtil, JWTStoreService jwtStoreService, OauthResponseModeConfig oauthResponseModeConfig){
+    public CustomSuccessHandler(JWTUtil jwtUtil, JWTStoreService jwtStoreService, OauthResponseModeConfig oauthResponseModeConfig, OneTimeCodeService oneTimeCodeService){
         this.jwtUtil = jwtUtil;
         this.jwtStoreService = jwtStoreService;
         this.oauthResponseModeConfig = oauthResponseModeConfig;
+        this.oneTimeCodeService = oneTimeCodeService;
     }
 
     @Override
@@ -63,7 +66,9 @@ public class CustomSuccessHandler  implements AuthenticationSuccessHandler {
             sendCookie(accessToken, refreshToken, response);
             response.sendRedirect(Constant.FRONT_SEND_REDIRECT);
         }else if (oauthResponseModeConfig.isMode().equalsIgnoreCase("redirect")){
-            response.sendRedirect(redirectUri(accessToken,refreshToken));
+            String code = UUID.randomUUID().toString();
+            oneTimeCodeService.storeOneTimeCode(code, accessToken, refreshToken);
+            response.sendRedirect(redirectUri(code));
         }else{
             sendResponse(accessToken,refreshToken,response);
         }
@@ -121,7 +126,7 @@ public class CustomSuccessHandler  implements AuthenticationSuccessHandler {
     }
 
     //redirect 사용
-    private String redirectUri (String accessToken, String refreshToken){
-        return "myapp://oauth-callback?accessToken=" + accessToken + "&refreshToken=" + refreshToken;
+    private String redirectUri (String code){
+        return Constant.FRONT_OAUTH_REDIRECT_CODE_URI + code;
     }
 }

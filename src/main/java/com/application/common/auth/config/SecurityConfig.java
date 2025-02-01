@@ -61,7 +61,7 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth)->auth
-                        .requestMatchers("/", "/api/auth/refresh" ).permitAll()
+                        .requestMatchers("/", "/api/auth/refresh", "/api/exchange/token", "/api/redirect/test" ).permitAll()
                         .anyRequest().authenticated());
 
         http

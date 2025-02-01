@@ -49,7 +49,7 @@ public class OAuth2Service {
         saveOrUpdate(userInfo, provider);
 
         String uuid = UUID.randomUUID().toString();
-        String accessToken = jwtUtil.createAccessJwt(getCredentialId(userInfo, provider),Role.USER.getEnglish());
+        String accessToken = jwtUtil.createAccessJwt(uuid, getCredentialId(userInfo, provider),Role.USER.getEnglish());
         String refreshToken = jwtUtil.createRefreshJwt(uuid, getCredentialId(userInfo, provider), Role.USER.getEnglish());
 
         jwtStoreService.save(jwtUtil.getUUID(refreshToken), refreshToken);

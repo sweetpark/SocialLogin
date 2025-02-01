@@ -6,10 +6,13 @@ import com.application.common.auth.jwt.JWTUtil;
 import com.application.common.auth.service.JWTStoreService;
 import com.application.common.auth.service.OAuth2Service;
 import com.application.common.response.ResponseDto;
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,7 +47,7 @@ public class AuthController {
         jwtStoreService.deleteByKey(key);
 
         String uuid = UUID.randomUUID().toString();
-        String newAccessToken = jwtUtil.createAccessJwt(jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken) );
+        String newAccessToken = jwtUtil.createAccessJwt(uuid, jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken) );
         String newRefreshToken = jwtUtil.createRefreshJwt(uuid, jwtUtil.getCredentialId(refreshToken),jwtUtil.getRole(refreshToken) );
         log.info("new Refresh Key : " + newRefreshToken);
 
@@ -79,7 +82,17 @@ public class AuthController {
         return new ResponseEntity<>(new ResponseDto<>(1, "access token , refresh token create", responseTokenDto), HttpStatus.CREATED);
     }
 
+    @PostMapping("/api/auth/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request){
+        String accessToken = request.getHeader("Authorization");
+        accessToken = accessToken.substring(7);
 
+        String uuid = jwtUtil.getUUID(accessToken);
+
+        jwtStoreService.deleteByKey(uuid);
+
+        return new ResponseEntity<>(new ResponseDto<>(1, "logout", null), HttpStatus.OK);
+    }
 
     //TEST CODE
     @GetMapping("/api/test")

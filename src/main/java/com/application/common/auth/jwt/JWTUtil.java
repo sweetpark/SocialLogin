@@ -55,8 +55,9 @@ public class JWTUtil {
         }
     }
 
-    public String createAccessJwt(String credentialId, String role){
+    public String createAccessJwt(String uuid, String credentialId, String role){
         return Jwts.builder()
+                .claim("uuid", uuid)
                 .claim("credentialId", credentialId)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))

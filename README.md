@@ -14,6 +14,10 @@
 - JWT
 </aside>
 
+## Social Login (전과정)
+![소셜로그인과정](https://github.com/user-attachments/assets/ad8221f9-2615-4e5c-826b-639afab5f96d)
+
+
 ## Social Logn (refreshToken 포함 Flow)
 
 ![socialLogin](https://github.com/user-attachments/assets/684df042-4150-43b3-9434-b9455310dd91)

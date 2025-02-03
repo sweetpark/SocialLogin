@@ -6,17 +6,13 @@ import com.application.common.auth.jwt.JWTUtil;
 import com.application.common.auth.service.JWTStoreService;
 import com.application.common.auth.service.OAuth2Service;
 import com.application.common.response.ResponseDto;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -77,22 +73,23 @@ public class AuthController {
         }
 
 
-        ResponseTokenDto responseTokenDto = oAuth2Service.getToken(provider, userInfo);
+        ResponseTokenDto responseTokenDto = oAuth2Service.getTokenAndSaveMember(provider, userInfo);
 
         return new ResponseEntity<>(new ResponseDto<>(1, "access token , refresh token create", responseTokenDto), HttpStatus.CREATED);
     }
 
-    @PostMapping("/api/auth/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request){
-        String accessToken = request.getHeader("Authorization");
-        accessToken = accessToken.substring(7);
-
-        String uuid = jwtUtil.getUUID(accessToken);
-
-        jwtStoreService.deleteByKey(uuid);
-
-        return new ResponseEntity<>(new ResponseDto<>(1, "logout", null), HttpStatus.OK);
-    }
+    // spring securit logout() 으로 대체
+//    @PostMapping("/api/auth/logout")
+//    public ResponseEntity<?> logout(HttpServletRequest request){
+//        String accessToken = request.getHeader("Authorization");
+//        accessToken = accessToken.substring(7);
+//
+//        String uuid = jwtUtil.getUUID(accessToken);
+//
+//        jwtStoreService.deleteByKey(uuid);
+//
+//        return new ResponseEntity<>(new ResponseDto<>(1, "logout", null), HttpStatus.OK);
+//    }
 
     //TEST CODE
     @GetMapping("/api/test")

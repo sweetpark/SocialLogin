@@ -45,7 +45,7 @@ public class OAuth2Service {
     }
 
 
-    public ResponseTokenDto getToken(String provider, Map<String, Object> userInfo){
+    public ResponseTokenDto getTokenAndSaveMember(String provider, Map<String, Object> userInfo){
         saveOrUpdate(userInfo, provider);
 
         String uuid = UUID.randomUUID().toString();
